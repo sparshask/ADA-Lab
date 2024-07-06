@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+int max(int a, int b)
+{
+    return (a > b) ? a : b;
+}
+
+void knapsack(int W, int wt[], int val[], int n)
+{
+    int i, w;
+    int K[n + 1][W + 1];
+    bool included[n];
+
+    // Compute maximum value using dynamic programming
+    for (i = 0; i <= n; i++)
+    {
+        for (w = 0; w <= W; w++)
+        {
+            if (i == 0 || w == 0)
+                K[i][w] = 0;
+            else if (wt[i - 1] <= w)
+                K[i][w] = max(val[i - 1] + K[i - 1][w - wt[i - 1]], K[i - 1][w]);
+            else
+                K[i][w] = K[i - 1][w];
+        }
+    }
+
+    // Find items included in the knapsack
+    i = n;
+    w = W;
+    while (i > 0 && w > 0)
+    {
+        if (K[i][w] != K[i - 1][w])
+        {
+            included[i - 1] = true;
+            w -= wt[i - 1];
+        }
+        else
+        {
+            included[i - 1] = false;
+        }
+        i--;
+    }
+
+    // Print results
+    printf("Maximum value that can be obtained = %d\n", K[n][W]);
+    printf("Items included in the knapsack:\n");
+    for (i = 0; i < n; i++)
+    {
+        if (included[i])
+        {
+            printf("Item %d (weight = %d, value = %d)\n", i + 1, wt[i], val[i]);
+        }
+    }
+}
+
+int main()
+{
+    int val[100], wt[100], W, n;
+
+    printf("Enter number of items: ");
+    scanf("%d", &n);
+
+    printf("Enter the weight and value of each item:\n");
+    for (int i = 0; i < n; i++)
+    {
+        printf("Weight of item %d: ", i + 1);
+        scanf("%d", &wt[i]);
+        printf("Value of item %d: ", i + 1);
+        scanf("%d", &val[i]);
+    }
+
+    printf("Enter the capacity of knapsack: ");
+    scanf("%d", &W);
+
+    knapsack(W, wt, val, n);
+
+    return 0;
+}
